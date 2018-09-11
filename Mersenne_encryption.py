@@ -1,0 +1,134 @@
+
+# coding: utf-8
+
+# In[9]:
+
+import random as rand
+import math
+
+#encrypting message block m, a list of bits
+
+def bin_to_num(bin_string): #this is int()
+    num = format(bin_string,'d')
+    return num
+
+# Returns the binary representation of a number, with n bits (includes leading zeros)
+def num_to_bin(num, size):
+    bin_string = format(num,'0%ib'%size)
+    return bin_string
+
+def app0_error_correcting_encoding(m,n):
+    #take m, turn into n length by appending 0's
+    return m + (n-len(m))*"0"
+
+#print(app0_error_correcting_encoding(num_to_bin(44, 8), 100))
+
+def app0_error_correcting_decoding(em,lam):
+    return em[:lam]
+
+#print(app0_error_correcting_decoding(app0_error_correcting_encoding(num_to_bin(44, 8), 100), 8))
+
+#primality test
+def Lucas_Lehmer(n):
+    #Determine if pn = 2n − 1 is prime for n > 2
+    s = 4
+    p = 2**n - 1
+    steps = 0
+    while steps < n-2: #repeat n - 2 times
+        s = ((s * s) - 2) % p
+        steps += 1
+    if s == 0:
+        return True
+    else:
+        return False
+
+def is_prime(n):
+    return True
+
+#KEY GENERATION: inputs lam, outputs pk, sk and T
+    #uniformly randomly chosen n-bit string with Hamming weight h
+def bit_string_h(n, h):
+    #generate h random distinct numbers between 1 and n, put 1's in those positions
+    rand_list = "0"*n
+    true_list = rand.sample(range(1, n), h)
+    for t in true_list:
+        rand_list = rand_list[:t] + "1" + rand_list[t+1:]
+    return int(eval("0b"+ rand_list))
+#print(bit_string_h(10, 5))
+    
+    #uniformly randomly chosen n-bit string
+def n_bit_num(n):
+    rand_num = rand.getrandbits(n)
+    return rand_num
+
+def key_gen(lam):
+    h = lam
+
+    #Choose a Mersenne prime such that h = lam and 16*(lam^2) >= n > 10*(lam^2)
+    n_high = 16*(h**2)
+    n_low = 10*(h**2)+1
+    p_not_prime = True
+    while p_not_prime:
+        #print(' in prime checking loop')
+        n = rand.randint(n_low, n_high) #randomly chosen between
+        p = 2**n - 1 #CHECK PRIMALITY
+        p_not_prime = False
+        if is_prime(n):
+            p_not_prime = False
+
+    F = bit_string_h(n, h) #uniformly randomly chosen n-bit string with Hamming weight h
+    G = bit_string_h(n, h) #uniformly randomly chosen n-bit string with Hamming weight h
+
+    R = n_bit_num(n) #uniformly randomly chosen n-bit string.
+    #Fnum, Rnum, Gnum refer to the number forms of F, R, G
+    #public key
+    pk = (num_to_bin(R, n), (F*R + G) % p) #mod p
+    #secret key
+    sk = F
+    return (pk, sk) #as well as lam and n
+
+
+#ENCRYPTION: Inputs message m, public key pk and the error-correcting encoding algorithm E.
+#            Outputs encrypted message (C1, C2)
+def Mersenne_encrypt(m, pk, E):
+    h = len(m)
+    n = len(pk[0])
+    A = bit_string_h(n, h) #uniformly randomly chosen n-bit string with Hamming weight h
+    B1 = bit_string_h(n, h) #uniformly randomly chosen n-bit string with Hamming weight h
+    B2 = bit_string_h(n, h) #uniformly randomly chosen n-bit string with Hamming weight h
+    C1 = A*(int(pk[0])) + B1 #DEFINE R
+    Em = E(m) #error correcting code
+    ecl = len(Em) #number to binary string of length
+    C2 = eval("0b" + num_to_bin(A*pk[1] + B2, ecl)) ^ eval("0b" + Em)
+    return (C1, C2)
+
+#DECRYPTION: Inputs the coded message (C1, C2), the secret key F and the error-correcting decoding algorithm D.
+#            Outputs message m.
+def Mersenne_decrypt(F, C1, C2, D):
+    #bitwise XOR operation
+    bin_len = max(math.ceil(math.log(F*C1, 2)), math.ceil(math.log(C2, 2)))
+    output = eval("0b" + num_to_bin(F*C1, bin_len)) ^ eval("0b" + num_to_bin(C2, bin_len))
+    return D(num_to_bin(output, bin_len))
+
+pk, sk = key_gen(6)
+print("Key generated")
+
+
+# In[3]:
+
+m = "101110110100010110"
+app100_enc = lambda x: app0_error_correcting_encoding(x, 10000)
+app100_dec = lambda x: app0_error_correcting_decoding(x, len(m))
+
+enc_m1, enc_m2 = Mersenne_encrypt(m, pk, app100_enc)
+#print(enc_m1, enc_m2)
+dec_m = Mersenne_decrypt(sk, enc_m1, enc_m2, app100_dec)
+
+print("Encoded, then decoded m: ", dec_m)
+print("Original m:              ", m)
+
+
+# In[ ]:
+
+
+
