@@ -8,25 +8,16 @@ import math
 
 #encrypting message block m, a list of bits
 
-def bin_to_num(bin_string): #this is int()
-    num = format(bin_string,'d')
-    return num
-
-# Returns the binary representation of a number, with n bits (includes leading zeros)
-def num_to_bin(num, size):
-    bin_string = format(num,'0%ib'%size)
-    return bin_string
-
 def app0_error_correcting_encoding(m,n):
     #take m, turn into n length by appending 0's
     return m + (n-len(m))*"0"
 
-#print(app0_error_correcting_encoding(num_to_bin(44, 8), 100))
+#print(app0_error_correcting_encoding(format(44,'0%ib'%8), 100))
 
 def app0_error_correcting_decoding(em,lam):
     return em[:lam]
 
-#print(app0_error_correcting_decoding(app0_error_correcting_encoding(num_to_bin(44, 8), 100), 8))
+#print(app0_error_correcting_decoding(app0_error_correcting_encoding(format(44,'0%ib'%8), 100), 8))
 
 #primality test
 def Lucas_Lehmer(n):
@@ -53,13 +44,14 @@ def bit_string_h(n, h):
     true_list = rand.sample(range(1, n), h)
     for t in true_list:
         rand_list = rand_list[:t] + "1" + rand_list[t+1:]
-    return int(eval("0b"+ rand_list))
+    return int(rand_list, 2)
 #print(bit_string_h(10, 5))
     
     #uniformly randomly chosen n-bit string
 def n_bit_num(n):
     rand_num = rand.getrandbits(n)
     return rand_num
+
 
 def key_gen(lam):
     h = lam
@@ -82,7 +74,7 @@ def key_gen(lam):
     R = n_bit_num(n) #uniformly randomly chosen n-bit string.
     #Fnum, Rnum, Gnum refer to the number forms of F, R, G
     #public key
-    pk = (num_to_bin(R, n), (F*R + G) % p) #mod p
+    pk = (format(R,'0%ib'%n), (F*R + G) % p) #mod p
     #secret key
     sk = F
     return (pk, sk) #as well as lam and n
@@ -99,7 +91,7 @@ def Mersenne_encrypt(m, pk, E):
     C1 = A*(int(pk[0])) + B1 #DEFINE R
     Em = E(m) #error correcting code
     ecl = len(Em) #number to binary string of length
-    C2 = eval("0b" + num_to_bin(A*pk[1] + B2, ecl)) ^ eval("0b" + Em)
+    C2 = eval("0b" + format(A*pk[1] + B2,'0%ib'%ecl)) ^ eval("0b" + Em)
     return (C1, C2)
 
 #DECRYPTION: Inputs the coded message (C1, C2), the secret key F and the error-correcting decoding algorithm D.
@@ -107,8 +99,8 @@ def Mersenne_encrypt(m, pk, E):
 def Mersenne_decrypt(F, C1, C2, D):
     #bitwise XOR operation
     bin_len = max(math.ceil(math.log(F*C1, 2)), math.ceil(math.log(C2, 2)))
-    output = eval("0b" + num_to_bin(F*C1, bin_len)) ^ eval("0b" + num_to_bin(C2, bin_len))
-    return D(num_to_bin(output, bin_len))
+    output = eval("0b" + format(F*C1,'0%ib'%bin_len)) ^ eval("0b" + format(C2,'0%ib'%bin_len))
+    return D(format(output,'0%ib'%bin_len))
 
 pk, sk = key_gen(6)
 print("Key generated")
@@ -126,9 +118,3 @@ dec_m = Mersenne_decrypt(sk, enc_m1, enc_m2, app100_dec)
 
 print("Encoded, then decoded m: ", dec_m)
 print("Original m:              ", m)
-
-
-# In[ ]:
-
-
-
