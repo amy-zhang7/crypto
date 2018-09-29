@@ -1,7 +1,4 @@
-
 # coding: utf-8
-
-# In[9]:
 
 import random as rand
 import math
@@ -62,7 +59,7 @@ def key_gen(lam):
     p_not_prime = True
     while p_not_prime:
         #print(' in prime checking loop')
-        n = rand.randint(n_low, n_high) #randomly chosen between
+        n = rand.randint(n_low, n_high) #randomly chosen between n_low and n_high
         p = 2**n - 1 #CHECK PRIMALITY
         p_not_prime = False
         if is_prime(n):
@@ -72,7 +69,6 @@ def key_gen(lam):
     G = bit_string_h(n, h) #uniformly randomly chosen n-bit string with Hamming weight h
 
     R = n_bit_num(n) #uniformly randomly chosen n-bit string.
-    #Fnum, Rnum, Gnum refer to the number forms of F, R, G
     #public key
     pk = (format(R,'0%ib'%n), (F*R + G) % p) #mod p
     #secret key
@@ -106,8 +102,7 @@ pk, sk = key_gen(6)
 print("Key generated")
 
 
-# In[3]:
-
+#Run an example
 m = "101110110100010110"
 app100_enc = lambda x: app0_error_correcting_encoding(x, 10000)
 app100_dec = lambda x: app0_error_correcting_decoding(x, len(m))
