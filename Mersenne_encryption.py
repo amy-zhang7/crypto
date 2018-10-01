@@ -2,6 +2,7 @@
 
 import random as rand
 import math
+import binascii
 
 #encrypting message block m, a list of bits
 
@@ -16,20 +17,7 @@ def app0_error_correcting_decoding(em,lam):
 
 #print(app0_error_correcting_decoding(app0_error_correcting_encoding(format(44,'0%ib'%8), 100), 8))
 
-#primality test
-def Lucas_Lehmer(n):
-    #Determine if pn = 2n − 1 is prime for n > 2
-    s = 4
-    p = 2**n - 1
-    steps = 0
-    while steps < n-2: #repeat n - 2 times
-        s = ((s * s) - 2) % p
-        steps += 1
-    if s == 0:
-        return True
-    else:
-        return False
-
+#insert primality test
 def is_prime(n):
     return True
 
@@ -104,6 +92,13 @@ print("Key generated")
 
 #Run an example
 m = "101110110100010110"
+
+def string_to_bin(s):
+    return bin(int.from_bytes(s.encode(), 'big'))[2:]
+
+def bin_to_string(b):
+    return b.to_bytes((n.bit_length() + 7) // 8, 'big').decode()
+
 app100_enc = lambda x: app0_error_correcting_encoding(x, 10000)
 app100_dec = lambda x: app0_error_correcting_decoding(x, len(m))
 
@@ -111,5 +106,5 @@ enc_m1, enc_m2 = Mersenne_encrypt(m, pk, app100_enc)
 #print(enc_m1, enc_m2)
 dec_m = Mersenne_decrypt(sk, enc_m1, enc_m2, app100_dec)
 
-print("Encoded, then decoded m: ", dec_m)
 print("Original m:              ", m)
+print("Encoded, then decoded m: ", dec_m)
