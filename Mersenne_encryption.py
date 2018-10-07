@@ -6,20 +6,32 @@ import binascii
 
 #encrypting message block m, a list of bits
 
-def app0_error_correcting_encoding(m,n):
+def app0_error_correcting_encoding(m, n):
     #take m, turn into n length by appending 0's
     return m + (n-len(m))*"0"
-
 #print(app0_error_correcting_encoding(format(44,'0%ib'%8), 100))
 
-def app0_error_correcting_decoding(em,lam):
+def app0_error_correcting_decoding(em, lam):
     return em[:lam]
-
 #print(app0_error_correcting_decoding(app0_error_correcting_encoding(format(44,'0%ib'%8), 100), 8))
+
+
+def repeat_error_correcting_encoding(m, r):
+    message_error_correct = ''
+    for i in range(len(m)):
+        message_error_correct += (m[i]*r)
+    return message_error_correct
+
+def repeat_error_correcting_decoding(m, r):
+    message_error_decode = ''
+    for i in range(len(m)):
+        #do something
+    return message_error_decode
 
 #insert primality test
 def is_prime(n):
     return True
+
 
 #KEY GENERATION: inputs lam, outputs pk, sk and T
     #uniformly randomly chosen n-bit string with Hamming weight h
